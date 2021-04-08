@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>面向对象 Tab</title>
+    <link rel="stylesheet" href="./styles/tab.css">
+    <link rel="stylesheet" href="./styles/style.css">
+    <script src="js/tab.js"></script>
+</head>
+
+<body>
+
+<main>
+    <h4>
+        Js 面向对象 动态添加标签页
+    </h4>
+    <div class="tabsbox" id="tab">
+        <!-- tab 标签 -->
+        <nav class="fisrstnav">
+            <ul>
+                <li class="liactive"><span>测试1</span><span class="iconfont icon-guanbi"></span></li>
+                <li><span>测试2</span><span class="iconfont icon-guanbi"></span></li>
+                <li><span>测试3</span><span class="iconfont icon-guanbi"></span></li>
+            </ul>
+            <div class="tabadd">
+                <span>+</span>
+            </div>
+        </nav>
+
+        <!-- tab 内容 -->
+        <div class="tabscon">
+            <section class="conactive">测试1</section>
+            <section>测试2</section>
+            <section>测试3</section>
+        </div>
+    </div>
+</main>
+
+<script>
+    var that;
+
+    class Tap {
+        constructor(id) {
+// 获取元素
+            that = this
+            this.main = document.querySelector(id)
+            this.add = document.querySelector('.tabadd')
+            //获取li的父元素
+            this.ul = document.querySelector('.fisrstnav ul')
+            //获取section的父元素
+            this.fsection = document.querySelector('.tabscon')
+            this.updataNode()
+            this.init()
+        }
+
+// 初始化操作
+        init() {
+            this.updataNode()
+            this.add.onclick = this.addTab;
+            for (let i = 0; i < this.lis.length; i++) {
+                this.lis[i].index = i
+                this.lis[i].onclick = this.toggleTab;
+                this.remove[i].onclick = this.removeTab;
+                that.spans[i].ondblclick = this.editTab;
+                that.sections[i].ondblclick = this.editTab;
+            }
+        }
+
+// 1、切换功能
+        toggleTab() {
+            that.clearClass();
+            this.className = 'liactive';
+            that.sections[this.index].className = 'conactive '
+        }
+
+        //清除className
+        clearClass() {
+            for (let i = 0; i < this.lis.length; i++) {
+                this.lis[i].className = ''
+                this.sections[i].className = ''
+            }
+        }
+
+        //重新获取小li 和 section
+        updataNode() {
+            this.remove = document.querySelectorAll('.iconfont')
+            this.lis = this.main.querySelectorAll('li')
+            this.sections = this.main.querySelectorAll('section')
+            this.spans = this.main.querySelectorAll('.fisrstnav li span:first-child')
+        }
+
+// 2、添加功能
+        addTab() {
+            that.clearClass()
+            //1、创建li和section元素
+            let li = '<li class="liactive"><span>新选项卡</span><span class="iconfont icon-guanbi"></span></li>'
+            let section = '<section class="conactive">测试2</section>'
+            // 2、追加到其父元素身上
+            that.ul.insertAdjacentHTML('beforeend', li)
+            that.fsection.insertAdjacentHTML('beforeend', section)
+            that.init()
+        }
+
+// 3、删除功能
+        removeTab(e) {
+            e.stopPropagation()//阻止冒泡，防止触发li的切换点击事件
+            let index = this.parentNode.index
+            that.lis[index].remove()
+            that.sections[index].remove();
+            that.init();
+            // 当我们删除不是选中状态的这个li的时候，让他保持选定状态
+            if (document.querySelector('.liactive')) return;
+            // 当我们删除选中状态的这个li的时候，让他前一个li处于选定状态
+            index--;
+            that.lis[index] && that.lis[index].click()
+        }
+
+// 4、修改功能
+        editTab() {
+            let str = this.innerHTML;
+            //双击禁止选中文字
+            window.getSelection ? window.getSelection().removeAllRanges() : document.selection.empty()
+            this.innerHTML = `<input type="text" value=" ` + str + `">`
+            let input = this.children[0]
+            input.select()      //选中文本框里面的内容
+            input.onblur = function () {
+                this.parentNode.innerHTML = this.value;
+            }
+            input.onkeyup = function (e) {
+                if (e.keyCode === 13) {
+                    this.blur()
+                }
+            }
+        }
+
+
+    }
+
+    var tab = new Tap('#tab')
+
+
+</script>
+</body>
+</html>
